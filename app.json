@@ -11,6 +11,7 @@
       "supportsTablet": true
     },
     "android": {
+      "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {
         "backgroundColor": "#101F36",
         "foregroundImage": "./assets/icon.jpg"

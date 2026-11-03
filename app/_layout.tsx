@@ -1,5 +1,7 @@
+import '../global.css';
 import { useEffect, useRef, useState } from 'react';
 import { Stack } from 'expo-router';
+import { SesionProvider } from '../src/context/sesion';
 import { StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import NetInfo from '@react-native-community/netinfo';
@@ -214,16 +216,21 @@ export default function RootLayout() {
   }
 
   return (
-    <Stack
-      screenOptions={{
-        headerStyle: { backgroundColor: '#092A50' },
-        headerTintColor: '#FFFFFF',
-        headerTitleStyle: { color: '#FFFFFF' },
-      }}
-    >
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="index" options={{ headerShown: false }} />
-    </Stack>
+    <SesionProvider>
+      <Stack
+        screenOptions={{
+          headerStyle: { backgroundColor: '#092A50' },
+          headerTintColor: '#FFFFFF',
+          headerTitleStyle: { color: '#FFFFFF' },
+        }}
+      >
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="login" options={{ headerShown: false }} />
+        <Stack.Screen name="registro" options={{ headerShown: false }} />
+        <Stack.Screen name="perfil/editar" options={{ headerShown: false }} />
+      </Stack>
+    </SesionProvider>
   );
 }
 

@@ -4,7 +4,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { BlurTargetView, BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import {
-  FlatList,
   Image,
   Modal,
   Pressable,
@@ -12,10 +11,17 @@ import {
   Text,
   View,
 } from 'react-native';
+import Animated, {
+  FadeInDown,
+  FadeInUp,
+  LinearTransition,
+} from 'react-native-reanimated';
 import {
   getLecturas,
   type LecturaLocal,
 } from '../../src/database/sqlite';
+
+const readingListLayout = LinearTransition.springify();
 
 export default function PendientesScreen() {
   const [lecturas, setLecturas] = useState<LecturaLocal[]>([]);
@@ -95,7 +101,11 @@ export default function PendientesScreen() {
     const isSent = item.estado_sync === 'ENVIADO';
 
     return (
-      <View style={[styles.card, isSent && styles.sentCard]}>
+      <Animated.View
+        entering={FadeInDown.duration(350)}
+        layout={readingListLayout}
+        style={[styles.card, isSent && styles.sentCard]}
+      >
         <BlurView
           blurMethod="dimezisBlurView"
           blurTarget={backgroundRef}
@@ -203,7 +213,7 @@ export default function PendientesScreen() {
             </Pressable>
           )}
         </View>
-      </View>
+      </Animated.View>
     );
   }
 
@@ -219,15 +229,19 @@ export default function PendientesScreen() {
         <View pointerEvents="none" style={styles.backgroundCircleLarge} />
         <View pointerEvents="none" style={styles.backgroundCircleSmall} />
       </BlurTargetView>
-      <FlatList
+      <Animated.FlatList
         data={lecturas}
         keyExtractor={(item) => String(item.id)}
         renderItem={renderLectura}
+        itemLayoutAnimation={readingListLayout}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContent}
         ListHeaderComponent={
           <View>
-            <View style={styles.hero}>
+            <Animated.View
+              entering={FadeInDown.duration(600)}
+              style={styles.hero}
+            >
               <Text style={styles.eyebrow}>GESTIÓN DE REGISTROS</Text>
               <Text style={styles.title}>Lecturas</Text>
               <Text style={styles.description}>
@@ -239,7 +253,7 @@ export default function PendientesScreen() {
                   {lecturas.length} {lecturas.length === 1 ? 'registro' : 'registros'}
                 </Text>
               </View>
-            </View>
+            </Animated.View>
             {!!error && (
               <View style={styles.errorCard}>
                 <Text accessibilityRole="alert" style={styles.errorText}>
@@ -271,12 +285,22 @@ export default function PendientesScreen() {
             ) : error ? (
               null
             ) : (
-              <>
+              <Animated.View
+                entering={FadeInUp.duration(500)}
+                className="items-center"
+              >
+                <View className="mb-4 h-14 w-14 items-center justify-center rounded-2xl border border-cyan-700/10 bg-cyan-100/70">
+                  <Ionicons
+                    color="#087F83"
+                    name="water-outline"
+                    size={28}
+                  />
+                </View>
                 <Text style={styles.emptyTitle}>Aún no hay lecturas</Text>
                 <Text style={styles.messageText}>
                   Cuando registres una lectura aparecerá aquí.
                 </Text>
-              </>
+              </Animated.View>
             )}
           </View>
         }

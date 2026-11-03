@@ -1,26 +1,20 @@
-import { useSyncExternalStore } from 'react';
 import { Redirect, router } from 'expo-router';
 import { Tabs } from 'expo-router/js-tabs';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { useAuthStore } from '../../src/store/authStore';
+import { PressableButton } from '../../src/components/PressableButton';
+import { useSesion } from '../../src/context/sesion';
 import { useSyncStore } from '../../src/store/syncStore';
 
 export default function TabLayout() {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const hasHydrated = useSyncExternalStore(
-    (onStoreChange) =>
-      useAuthStore.persist.onFinishHydration(onStoreChange),
-    () => useAuthStore.persist.hasHydrated(),
-    () => false,
-  );
+  const { usuario, cargando } = useSesion();
 
-  if (!hasHydrated) {
+  if (cargando) {
     return null;
   }
 
-  if (!isAuthenticated) {
-    return <Redirect href="/" />;
+  if (!usuario?.correoVerificado) {
+    return <Redirect href="/login" />;
   }
 
   return (
@@ -63,11 +57,18 @@ export default function TabLayout() {
 }
 
 function HeaderActions() {
-  const logout = useAuthStore((state) => state.logout);
+  const { cerrarSesion } = useSesion();
 
-  function handleLogout() {
-    logout();
-    router.replace('/');
+  async function handleLogout() {
+    try {
+      await cerrarSesion();
+      router.replace('/login');
+    } catch (error) {
+      Alert.alert(
+        'No se pudo cerrar sesión',
+        error instanceof Error ? error.message : 'Intenta nuevamente.',
+      );
+    }
   }
 
   return (
@@ -80,6 +81,13 @@ function HeaderActions() {
       }}
     >
       <NetworkBadge />
+      <PressableButton
+        accessibilityLabel="Editar perfil"
+        className="h-10 w-10 items-center justify-center rounded-full bg-white/10"
+        onPress={() => router.push('/perfil/editar')}
+      >
+        <Feather color="#FFFFFF" name="user" size={18} />
+      </PressableButton>
       <Pressable
         accessibilityHint="Cierra tu sesión y vuelve al inicio."
         accessibilityLabel="Cerrar sesión"

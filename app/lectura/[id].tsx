@@ -570,6 +570,7 @@ export default function LecturaScreen() {
       <ScrollView
         contentContainerStyle={styles.container}
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
       >
         <LinearGradient
           colors={['#081B3A', '#0D4FA1']}

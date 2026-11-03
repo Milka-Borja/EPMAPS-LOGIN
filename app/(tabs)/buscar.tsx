@@ -4,14 +4,17 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { BlurTargetView, BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import {
+  ActivityIndicator,
   Alert,
   Pressable,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from 'react-native';
+import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { fetchMedidorAPI } from '../../src/api/mockapi';
 import type { MedidorCache } from '../../src/database/sqlite';
 import {
@@ -121,17 +124,47 @@ export default function BuscarScreen() {
       <ScrollView
         contentContainerStyle={styles.container}
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+        automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
       >
-        <View style={styles.hero}>
-          <Text style={styles.eyebrow}>CONSULTA DE SERVICIO</Text>
-          <Text style={styles.title}>Buscar medidor</Text>
-          <Text style={styles.description}>
-            Ingresa el código para consultar su información y preparar una nueva
-            lectura.
+        <Animated.View
+          entering={FadeInDown.delay(80).duration(650)}
+          className="mb-5 overflow-hidden rounded-[26px] border border-white/15 bg-white/10 px-5 py-5"
+        >
+          <View className="mb-4 flex-row items-center justify-between">
+            <View className="flex-row items-center">
+              <View className="h-11 w-11 items-center justify-center rounded-2xl border border-cyan-100/20 bg-cyan-300/10">
+                <Ionicons color="#8DE9E7" name="water-outline" size={23} />
+              </View>
+              <View className="ml-3">
+                <Text className="text-[10px] font-extrabold tracking-[1.7px] text-cyan-100">
+                  EPMAPS · OPERACIONES
+                </Text>
+                <Text className="mt-1 text-xs font-medium text-slate-300">
+                  RUTA DE LECTURAS / QUITO
+                </Text>
+              </View>
+            </View>
+            <View className="h-2.5 w-2.5 rounded-full border-2 border-cyan-100/50 bg-cyan-300" />
+          </View>
+          <Text className="text-[30px] font-extrabold tracking-tight text-white">
+            Buscar medidor
           </Text>
-        </View>
+          <Text className="mt-1 text-sm leading-5 text-slate-200">
+            Consulta el servicio y deja lista la siguiente lectura.
+          </Text>
+          <View className="mt-4 flex-row items-center">
+            <Ionicons color="#8DE9E7" name="flash-outline" size={14} />
+            <Text className="ml-1.5 text-[11px] font-semibold tracking-wide text-cyan-100">
+              BÚSQUEDA LOCAL Y EN LÍNEA
+            </Text>
+          </View>
+        </Animated.View>
 
-        <View style={styles.searchPanel}>
+        <Animated.View
+          entering={FadeInUp.delay(160).duration(650)}
+          style={styles.searchPanel}
+        >
           <BlurView
             blurMethod="dimezisBlurView"
             blurTarget={backgroundRef}
@@ -189,6 +222,13 @@ export default function BuscarScreen() {
               <Text style={styles.searchButtonText}>
                 {isSearching ? 'Buscando medidor...' : 'Buscar medidor'}
               </Text>
+              {isSearching ? (
+                <ActivityIndicator
+                  color="#FFFFFF"
+                  size="small"
+                  style={styles.searchSpinner}
+                />
+              ) : null}
             </LinearGradient>
           </Pressable>
         ) : (
@@ -208,18 +248,24 @@ export default function BuscarScreen() {
             </Text>
           </View>
         )}
-        </View>
+        </Animated.View>
 
         {!!mensaje && (
-          <View style={styles.errorPanel}>
+          <Animated.View
+            entering={FadeInDown.duration(350)}
+            style={styles.errorPanel}
+          >
             <Text accessibilityRole="alert" style={styles.errorText}>
               {mensaje}
             </Text>
-          </View>
+          </Animated.View>
         )}
 
         {medidor && (
-        <View style={styles.resultCard}>
+        <Animated.View
+          entering={FadeInUp.duration(550)}
+          style={styles.resultCard}
+        >
           <BlurView
             blurMethod="dimezisBlurView"
             blurTarget={backgroundRef}
@@ -281,7 +327,7 @@ export default function BuscarScreen() {
               </LinearGradient>
             </Pressable>
           </Link>
-        </View>
+        </Animated.View>
         )}
       </ScrollView>
     </View>
@@ -315,38 +361,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 24,
     paddingBottom: 36,
-  },
-  hero: {
-    marginBottom: 22,
-    paddingHorizontal: 3,
-    paddingVertical: 6,
-  },
-  eyebrow: {
-    marginBottom: 8,
-    color: '#FFFFFF',
-    fontSize: 11,
-    fontWeight: '800',
-    letterSpacing: 1.6,
-    textShadowColor: 'rgba(0,0,0,0.35)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
-  },
-  title: {
-    marginBottom: 8,
-    color: '#FFFFFF',
-    fontSize: 28,
-    fontWeight: '800',
-    textShadowColor: 'rgba(0,0,0,0.35)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
-  },
-  description: {
-    color: '#FFFFFF',
-    fontSize: 15,
-    lineHeight: 22,
-    textShadowColor: 'rgba(0,0,0,0.35)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
   },
   searchPanel: {
     position: 'relative',
@@ -412,8 +426,12 @@ const styles = StyleSheet.create({
   },
   buttonGradient: {
     minHeight: 50,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  searchSpinner: {
+    marginLeft: 8,
   },
   lockedAction: {
     minHeight: 42,
